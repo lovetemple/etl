@@ -1,0 +1,4 @@
+customer_id,name,email,region,updated_at
+101,John Doe,john@example.com,North,2024-01-01 10:00:00
+102,Jane Smith,jane@example.com,South,2024-01-01 11:00:00
+103,Bob Wilson,bob@example.com,East,2024-01-01 12:00:00
