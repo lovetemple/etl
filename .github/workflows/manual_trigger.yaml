@@ -1,0 +1,62 @@
+name: "Manual E2E Test Dispatch"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to run tests against'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+        - dev
+        - test
+        - staging
+      csv_file:
+        description: 'Custom CSV filename (optional)'
+        required: false
+        type: string
+      stop_at_layer:
+        description: 'Stop test after verifying this layer'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - raw_structured
+        - raw_vault
+        - business_vault
+        - consumption
+        - all
+
+jobs:
+  e2e-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Run E2E Tests
+        env:
+          ETL_ENV: ${{ inputs.environment }}
+          TEST_CSV_FILE: ${{ inputs.csv_file }}
+          TEST_STOP_AT_LAYER: ${{ inputs.stop_at_layer }}
+          # In real scenario, secrets would be injected here
+          # GOOGLE_APPLICATION_CREDENTIALS: ...
+        run: |
+          echo "Running E2E Test in ${{ inputs.environment }} environment"
+          echo "Layer limit: ${{ inputs.stop_at_layer }}"
+          
+          # Run specifically the E2E test
+          uv run pytest tests/test_e2e_pipeline.py --alluredir=allure-results
+          
+      - name: Upload Allure Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: allure-results
+          path: allure-results
