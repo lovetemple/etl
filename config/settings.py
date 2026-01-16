@@ -34,35 +34,38 @@ class Settings:
 
         # 4. Set simple attributes (no properties)
         # Priority: .env (GCP_PROJECT) > yaml root (project_id)
-        self.project_id = self.GCP_PROJECT or self.config.get("project_id", "unknown-project")
+        # Using direct access [] instead of .get() to fail fast if missing
+        self.project_id = self.GCP_PROJECT or self.config["project_id"]
         
         # Dataset Layers
-        bq_conf = self.config.get("bigquery", {})
-        self.raw_structured_ds = bq_conf.get("raw_structured", "raw_structured_ds")
-        self.raw_vault_ds = bq_conf.get("raw_vault", "raw_vault_ds")
-        self.business_vault_ds = bq_conf.get("business_vault", "business_vault_ds")
-        self.consumption_ds = bq_conf.get("consumption", "consumption_ds")
+        bq_conf = self.config["bigquery"]
+        self.raw_structured_ds = bq_conf["raw_structured"]
+        self.raw_vault_ds = bq_conf["raw_vault"]
+        self.business_vault_ds = bq_conf["business_vault"]
+        self.consumption_ds = bq_conf["consumption"]
         
-        self.bq_location = bq_conf.get("location", "US")
+        self.bq_location = bq_conf["location"]
 
         # Buckets
-        buckets = self.config.get("buckets", {})
-        self.landing_bucket = buckets.get("landing", "landing-bucket")
-        self.temp_bucket = buckets.get("temp", "temp-bucket")
+        buckets = self.config["buckets"]
+        self.landing_bucket = buckets["landing"]
+        self.temp_bucket = buckets["temp"]
+
+        # Composer
+        comp_conf = self.config["composer"]
+        self.composer_location = comp_conf["location"]
+        self.composer_env_name = comp_conf["env_name"]
+        self.composer_webserver_url = comp_conf["webserver_url"]
 
     def load_config(self):
         """Loads the YAML configuration file."""
         # Find config file in the same directory as this settings.py
         config_file = Path(__file__).parent / self._config_path
-        if config_file.exists():
-            with open(config_file, "r") as f:
-                self.config = yaml.safe_load(f) or {}
+        if not config_file.exists():
+            raise FileNotFoundError(f"Config file not found: {config_file}. Every environment needs its own config.{self.ENV}.yaml")
 
-            # Simple override logic if needed
-            if self.ENV == "dev" and "environment" in self.config:
-                pass
-        else:
-            print(f"Warning: Config file not found at {config_file}")
+        with open(config_file, "r") as f:
+            self.config = yaml.safe_load(f) or {}
 
 
 # Singleton instance

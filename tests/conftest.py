@@ -38,12 +38,11 @@ def composer_trigger(app_settings):
     Uses environment details from config.
     """
     from framework.clients.triggers import ComposerTrigger
-    comp_conf = app_settings.config.get("composer", {})
     return ComposerTrigger(
         project_id=app_settings.project_id, 
-        location=comp_conf.get("location", "us-central1"), 
-        composer_env_name=comp_conf.get("env_name", f"etl-env-{app_settings.ENV}"),
-        webserver_url=comp_conf.get("webserver_url", "https://example-airflow.composer.googleusercontent.com")
+        location=app_settings.composer_location, 
+        composer_env_name=app_settings.composer_env_name,
+        webserver_url=app_settings.composer_webserver_url
     )
 
 @pytest.fixture(scope="session")

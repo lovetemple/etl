@@ -15,3 +15,9 @@ buckets:
 dataflow:
   region: us-central1
   service_account_email: stg-sa@staging-project-id.iam.gserviceaccount.com
+
+composer:
+  location: us-central1
+  env_name: etl-composer-staging
+  webserver_url: https://staging-airflow.composer.googleusercontent.com
+
