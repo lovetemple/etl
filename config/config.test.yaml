@@ -1,0 +1,17 @@
+# Test Environment Configuration
+project_id: test-project-id  # Overridden by .env if present
+
+bigquery:
+  raw_structured: test_raw_structured
+  raw_vault: test_raw_vault
+  business_vault: test_business_vault
+  consumption: test_consumption
+  location: US
+
+buckets:
+  landing: test-landing-bucket
+  temp: test-temp-bucket
+
+dataflow:
+  region: us-central1
+  service_account_email: test-sa@test-project-id.iam.gserviceaccount.com

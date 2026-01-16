@@ -1,0 +1,17 @@
+# Staging Environment Configuration
+project_id: staging-project-id  # Overridden by .env if present
+
+bigquery:
+  raw_structured: stg_raw_structured
+  raw_vault: stg_raw_vault
+  business_vault: stg_business_vault
+  consumption: stg_consumption
+  location: US
+
+buckets:
+  landing: stg-landing-bucket
+  temp: stg-temp-bucket
+
+dataflow:
+  region: us-central1
+  service_account_email: stg-sa@staging-project-id.iam.gserviceaccount.com

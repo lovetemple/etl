@@ -27,21 +27,23 @@ def bq_client(app_settings):
 
 @pytest.fixture(scope="session")
 def dataflow_trigger(app_settings):
-    return DataflowTrigger(project_id=app_settings.project_id, region="us-central1")
+    # Use region from config if available, fallback to us-central1
+    region = app_settings.config.get("dataflow", {}).get("region", "us-central1")
+    return DataflowTrigger(project_id=app_settings.project_id, region=region)
 
 @pytest.fixture(scope="session")
 def composer_trigger(app_settings):
     """
     Returns a ComposerTrigger.
-    Currently a stub implementation for future Airflow integration.
+    Uses environment details from config.
     """
     from framework.clients.triggers import ComposerTrigger
-    # Assumes composer environment details are in config or derivable, here using placeholder
+    comp_conf = app_settings.config.get("composer", {})
     return ComposerTrigger(
         project_id=app_settings.project_id, 
-        location="us-central1", 
-        composer_env_name="test-env",
-        webserver_url="https://example-airflow.composer.googleusercontent.com"
+        location=comp_conf.get("location", "us-central1"), 
+        composer_env_name=comp_conf.get("env_name", f"etl-env-{app_settings.ENV}"),
+        webserver_url=comp_conf.get("webserver_url", "https://example-airflow.composer.googleusercontent.com")
     )
 
 @pytest.fixture(scope="session")

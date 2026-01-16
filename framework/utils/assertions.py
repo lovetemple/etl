@@ -1,7 +1,6 @@
 import logging
 import allure
 from ..clients.bigquery import BigQueryClient
-from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +56,7 @@ def assert_row_count(
 
 
 def assert_schema_contains_columns(
-    bq_client: BigQueryClient, table_id: str, required_columns: List[str]
+    bq_client: BigQueryClient, table_id: str, required_columns: list[str]
 ):
     """
     Asserts that the table schema contains the specified columns.
@@ -88,7 +87,7 @@ def assert_schema_contains_columns(
         )
 
 
-def assert_sql_result(bq_client: BigQueryClient, query: str, expected_rows: List[dict] = None):
+def assert_sql_result(bq_client: BigQueryClient, query: str, expected_rows: list[dict] | None = None):
     """
     Simpler assertion: Runs query and checks if it returns results (or matches expected).
     If expected_rows is provided, checks exact equality (order sensitive).

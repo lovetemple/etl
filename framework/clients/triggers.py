@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Any
+from typing import Any
 
 class DataflowTrigger:
     def __init__(self, project_id: str, region: str):
@@ -12,7 +12,7 @@ class DataflowTrigger:
         self.logger = logging.getLogger(__name__)
 
     def trigger_job(
-        self, template_path: str, job_name: str, parameters: Dict[str, Any] = None
+        self, template_path: str, job_name: str, parameters: dict[str, Any] | None = None
     ):
         """Triggers a classic template Dataflow job."""
         self.logger.info(f"Triggering Dataflow job {job_name} from {template_path}")
@@ -58,8 +58,19 @@ class ComposerTrigger:
         self.composer_env_name = composer_env_name
         self.webserver_url = webserver_url.rstrip("/")
         self.logger = logging.getLogger(__name__)
+        self._id_token = None
 
-    def trigger_job(self, dag_id: str, conf: Dict[str, Any] = None):
+    def _get_id_token(self):
+        if self._id_token:
+            return self._id_token
+        
+        from google.auth.transport.requests import Request
+        from google.oauth2 import id_token
+        auth_req = Request()
+        self._id_token = id_token.fetch_id_token(auth_req, self.webserver_url)
+        return self._id_token
+
+    def trigger_job(self, dag_id: str, conf: dict[str, Any] | None = None):
         """
         Triggers a DAG run using the Airflow Stable REST API.
         URL: {webserver_url}/api/v1/dags/{dag_id}/dagRuns
@@ -94,12 +105,9 @@ class ComposerTrigger:
         """
         Polls status of a DAG run.
         """
-        from google.auth.transport.requests import Request
-        from google.oauth2 import id_token
         import requests
 
-        auth_req = Request()
-        token = id_token.fetch_id_token(auth_req, self.webserver_url)
+        token = self._get_id_token()
         
         headers = {"Authorization": f"Bearer {token}"}
         endpoint = f"{self.webserver_url}/api/v1/dags/{dag_id}/dagRuns/{dag_run_id}"

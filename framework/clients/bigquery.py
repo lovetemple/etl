@@ -1,5 +1,5 @@
 from google.cloud import bigquery
-from typing import List, Dict, Any
+from typing import Any
 import logging
 
 
@@ -10,7 +10,7 @@ class BigQueryClient:
         self.location = location
         self.logger = logging.getLogger(__name__)
 
-    def execute_query(self, query: str, job_config=None) -> List[Dict[str, Any]]:
+    def execute_query(self, query: str, job_config=None) -> list[dict[str, Any]]:
         """Executes a SQL query and returns results as a list of dicts."""
         self.logger.info(f"Executing query: {query}")
         query_job = self.client.query(query, job_config=job_config)
@@ -36,7 +36,7 @@ class BigQueryClient:
         except NotFound:
             return False
 
-    def insert_rows(self, table_id: str, rows: List[Dict[str, Any]]):
+    def insert_rows(self, table_id: str, rows: list[dict[str, Any]]):
         """Inserts rows into a table (useful for test setup)."""
         errors = self.client.insert_rows_json(table_id, rows)
         if errors:

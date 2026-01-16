@@ -127,4 +127,4 @@ def test_full_etl_pipeline(composer_trigger, bq_client, storage_client, app_sett
             cons_table_ref = f"{app_settings.project_id}.{consumption}.dim_customer"
             assert_schema_contains_columns(bq_client, cons_table_ref, rv_columns)
         except Exception as e:
-             print(f"Skipping schema check in dev env: {e}")
+             logger.error(f"Skipping schema check in dev env: {e}")

@@ -28,8 +28,11 @@ ENV/
 
 # Environment Variables (Secrets)
 .env
-.env.*
+#.env.*
 !.env.example
+!.env.dev
+!.env.test
+!.env.staging
 
 # IDEs
 .vscode/
@@ -40,7 +43,7 @@ ENV/
 .ruff_cache/
 allure-results/
 allure-report/
-report.html
+#report.html
 .allure/
 
 # Logs

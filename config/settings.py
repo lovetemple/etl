@@ -1,7 +1,7 @@
 import os
 import yaml
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any
 
 
 class Settings:
@@ -16,23 +16,25 @@ class Settings:
         # 1. Determine environment (default to dev)
         self.ENV: str = os.getenv("ETL_ENV", "dev")
         
-        # 2. Load .env files based on environment
-        # Load .env.{ENV} first (e.g. .env.staging)
+        # 2. Load .env file based on environment
         env_specific = Path(__file__).parent.parent / f".env.{self.ENV}"
-        load_dotenv(env_specific)
+        if not env_specific.exists():
+            raise FileNotFoundError(f"Missing environment file: {env_specific}. Every environment must have its own .env file.")
         
-        # Load base .env as fallback
-        base_env = Path(__file__).parent.parent / ".env"
-        load_dotenv(base_env)
+        load_dotenv(env_specific)
 
         # 3. Load variables (now populated from files if present)
-        self.GCP_PROJECT: Optional[str] = os.getenv("GCP_PROJECT")
-        self._config_path: str = os.getenv("ETL_CONFIG_PATH", "config/config.yaml")
-        self.config: Dict[str, Any] = {}
+        self.GCP_PROJECT: str | None = os.getenv("GCP_PROJECT")
+        
+        # Load config based on current environment (neighboring file)
+        self._config_path = f"config.{self.ENV}.yaml"
+        
+        self.config: dict[str, Any] = {}
         self.load_config()
 
         # 4. Set simple attributes (no properties)
-        self.project_id = self.GCP_PROJECT or self.config.get("projects", {}).get(self.ENV, "unknown-project")
+        # Priority: .env (GCP_PROJECT) > yaml root (project_id)
+        self.project_id = self.GCP_PROJECT or self.config.get("project_id", "unknown-project")
         
         # Dataset Layers
         bq_conf = self.config.get("bigquery", {})
@@ -50,9 +52,8 @@ class Settings:
 
     def load_config(self):
         """Loads the YAML configuration file."""
-        # Assuming config is relative to the project root or this file
-        # This settings.py is in config/, so parent is root/config, parent.parent is root
-        config_file = Path(__file__).parent.parent / self._config_path
+        # Find config file in the same directory as this settings.py
+        config_file = Path(__file__).parent / self._config_path
         if config_file.exists():
             with open(config_file, "r") as f:
                 self.config = yaml.safe_load(f) or {}

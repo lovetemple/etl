@@ -1,0 +1,17 @@
+# Dev Environment Configuration
+project_id: dev-project-id  # Overridden by .env if present
+
+bigquery:
+  raw_structured: dev_raw_structured
+  raw_vault: dev_raw_vault
+  business_vault: dev_business_vault
+  consumption: dev_consumption
+  location: US
+
+buckets:
+  landing: dev-landing-bucket
+  temp: dev-temp-bucket
+
+dataflow:
+  region: us-central1
+  service_account_email: dev-sa@dev-project-id.iam.gserviceaccount.com

@@ -1,6 +1,5 @@
 from google.cloud import storage
 import logging
-from typing import Optional
 
 class StorageClient:
     def __init__(self, project_id: str):
@@ -26,6 +25,6 @@ class StorageClient:
         else:
             self.logger.warning(f"Blob {blob_name} does not exist.")
 
-    def list_blobs(self, bucket_name: str, prefix: Optional[str] = None):
+    def list_blobs(self, bucket_name: str, prefix: str | None = None):
         """Lists blobs in a bucket."""
         return list(self.client.list_blobs(bucket_name, prefix=prefix))
