@@ -1,0 +1,106 @@
+Business Requirements – Test Automation Framework
+1. Must Have Requirements
+
+These are mandatory capabilities required for the test automation framework to be considered viable for production use.
+
+1.1 Core Framework & Configuration
+
+The framework must support structured configuration management using environment-specific configuration files.
+
+The framework must allow execution across multiple environments (dev, test, staging).
+
+The framework must follow a modular and extensible architecture to support future integrations.
+
+1.2 Data Platform Integration 
+
+The framework must integrate with Google BigQuery for executing data validation queries.
+
+The framework must support triggering data processing jobs as part of test execution (e.g., Dataflow, Composer).
+
+The framework must support seeding test data into cloud storage and downstream systems.
+
+1.3 Validation & Assertions
+
+The framework must provide reusable data validation assertions, including:
+
+Row count validations
+
+Schema consistency checks
+
+Data consistency between pipeline layers
+
+The framework must support end-to-end pipeline validation from raw ingestion to consumption layer.
+
+1.4 Test Execution & CI/CD
+
+The framework must support automated test execution via CI/CD pipelines.
+
+The framework must provide selective test execution (e.g., stop at a given pipeline layer).
+
+The framework must fail fast and surface clear errors when validations fail.
+
+1.5 Reporting & Observability
+
+The framework must generate structured test execution reports.
+
+The framework must provide visibility into test results and failures suitable for engineering and QA teams.
+
+2. Should Have Requirements
+
+These are important capabilities that significantly improve robustness, usability, and operational confidence.
+
+2.1 Advanced Job Control
+
+The framework should support polling and monitoring of triggered jobs until completion.
+
+The framework should support configurable timeouts for long-running jobs.
+
+The framework should support cancellation of in-flight jobs when tests fail.
+
+2.2 Orchestration Integration
+
+The framework should integrate with workflow orchestration tools (e.g., Airflow / Composer).
+
+The framework should retrieve execution logs and metadata when orchestrated jobs fail.
+
+2.3 Advanced Data Quality Assertions
+
+The framework should support column-level data quality checks, including:
+
+Not-null constraints
+
+Uniqueness constraints
+
+Referential integrity checks
+
+The framework should support negative testing using SQL assertions.
+
+2.4 Test Data Management
+
+The framework should automatically clean up test data after execution.
+
+The framework should ensure test isolation between runs.
+
+3. May Have Requirements
+
+These are nice-to-have capabilities that improve developer experience and long-term scalability.
+
+3.1 Usability & Developer Experience
+
+The framework may provide CLI utilities to scaffold new test cases.
+
+The framework may offer templates and examples for common test patterns.
+
+The framework may include enhanced documentation and API references.
+
+3.2 Reporting & Optimization
+
+The framework may include cost visibility for executed data queries.
+
+The framework may support advanced reporting integrations for historical trend analysis.
+
+3.3 Scalability & Future Enhancements
+
+The framework may support randomized or dynamically generated datasets per test run.
+
+The framework may support additional data platforms or execution engines in the future.
