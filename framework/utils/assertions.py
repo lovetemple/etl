@@ -124,3 +124,80 @@ def assert_data_integrity(bq_client: BigQueryClient, query: str, check_func):
             logger.error(f"Assertion failed: {e}")
             allure.attach(str(e), name="Assertion Failure", attachment_type=allure.attachment_type.TEXT)
             raise e
+
+
+// validators/null_checks.py
+def assert_no_nulls(bq, table, column):
+    sql = f"""
+    SELECT COUNT(*) cnt
+    FROM `{table}`
+    WHERE {column} IS NULL
+    """
+    cnt = list(bq.query(sql))[0].cnt
+    assert cnt == 0, f"Found {cnt} NULLs in {column}"
+
+    // validators/referential_integrity.py
+def assert_sat_has_hub_keys(bq, hub, satellite, key):
+    sql = f"""
+    SELECT COUNT(*) cnt
+    FROM `{satellite}` s
+    LEFT JOIN `{hub}` h
+      ON s.{key} = h.{key}
+    WHERE h.{key} IS NULL
+    """
+    cnt = list(bq.query(sql))[0].cnt
+    assert cnt == 0, f"Satellite has {cnt} orphan records"
+
+
+//validators/freshness.py
+def assert_fresh_data(bq, table, ts_column, hours=24):
+    sql = f"""
+    SELECT COUNT(*) cnt
+    FROM `{table}`
+    WHERE {ts_column} < TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL {hours} HOUR)
+    """
+    cnt = list(bq.query(sql))[0].cnt
+    assert cnt == 0, "Stale data detected"
+
+
+//Topic has data
+def assert_topic_not_empty(messages):
+    assert len(messages) > 0, "Kafka topic is empty"
+
+//Required fields exist
+def assert_required_fields(messages, required_fields):
+    for i, msg in enumerate(messages):
+        missing = [f for f in required_fields if f not in msg]
+        assert not missing, (
+            f"Message {i} missing fields: {missing}"
+        )
+
+//Timestamp freshness
+from datetime import datetime, timezone, timedelta
+
+def assert_event_freshness(
+    messages,
+    ts_field,
+    max_age_minutes=60
+):
+    now = datetime.now(timezone.utc)
+    stale = []
+
+    for msg in messages:
+        event_ts = datetime.fromisoformat(msg[ts_field])
+        if now - event_ts > timedelta(minutes=max_age_minutes):
+            stale.append(msg)
+
+    assert not stale, (
+        f"{len(stale)} stale Kafka events detected"
+    )
+
+
+    //Optional: Business key uniqueness (sample window)
+def assert_unique_keys(messages, key):
+    values = [msg[key] for msg in messages]
+    duplicates = set(v for v in values if values.count(v) > 1)
+
+    assert not duplicates, (
+        f"Duplicate keys found in Kafka messages: {duplicates}"
+    )

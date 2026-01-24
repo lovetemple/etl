@@ -6,6 +6,10 @@ class StorageClient:
         self.client = storage.Client(project=project_id)
         self.logger = logging.getLogger(__name__)
 
+    def file_exists(self, bucket, path):
+        blob = self.client.bucket(bucket).blob(path)
+        return blob.exists()
+
     def upload_file(self, bucket_name: str, source_file_path: str, destination_blob_name: str):
         """Uploads a file to the bucket."""
         self.logger.info(f"Uploading {source_file_path} to gs://{bucket_name}/{destination_blob_name}")
